@@ -930,9 +930,19 @@ var _ = Describe("DNSPolicy", Ordered, func() {
 				if len(createdDNSRecord.Spec.Endpoints) != 6 {
 					return fmt.Errorf("expected %v endpoints in DNSRecord, got %v", 6, len(createdDNSRecord.Spec.Endpoints))
 				}
+
+				// New check for default weight (120)
+				for _, endpoint := range createdDNSRecord.Spec.Endpoints {
+					for _, ps := range endpoint.ProviderSpecific {
+						if ps.Name == "weight" {
+							Expect(ps.Value).To(Equal("120"))
+						}
+					}
+				}
 				return nil
 			}, TestTimeoutMedium, TestRetryIntervalMedium).Should(BeNil())
 		})
+
 		It("should have probes that are healthy", func() {
 			err := k8sClient.Get(ctx, client.ObjectKey{Name: gateway.Name, Namespace: gateway.Namespace}, gateway)
 			Expect(err).NotTo(HaveOccurred())
