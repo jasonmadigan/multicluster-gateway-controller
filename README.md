@@ -106,7 +106,34 @@ If the intention is to cleanup kind cluster and prepare them for re-installation
 make local-cleanup-mgc MGC_WORKLOAD_CLUSTERS_COUNT=<NUMBER_WORKLOAD_CLUSTER> # prepares clusters for make local-setup-mgc
 ```
 
+
+## Tests
+
+### End-to-End tests
+
+To run the e2e tests, export:
+
+```bash
+export TEST_HUB_NAMESPACE=multi-cluster-gateways
+export TEST_HUB_KUBE_CONTEXT=kind-mgc-control-plane
+export TEST_MANAGED_ZONE=myzone.hcpapps.net
+export TEST_MANAGED_ZONE=myzone.hcpapps.net
+```
+
+And run via:
+
+```bash
+export MGC_WORKLOAD_CLUSTERS_COUNT=0 && make test-e2e
+```
+
+### Integration Tests
+
+```bash
+make test-integration
+```
+
 ## License
+
 
 Copyright 2022 Red Hat.
 
