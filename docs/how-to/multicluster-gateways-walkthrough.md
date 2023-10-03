@@ -13,7 +13,7 @@ We will start with a single cluster and move to multiple clusters to illustrate 
 
 ## Initial Setup
 
-In this walkthrough, we'll deploy test echo services across multiple clusters. If you followed the [Getting Started Guide](https://docs.kuadrant.io/getting-started/), you would have already set up a `MGC_ZONE_ROOT_DOMAIN` environment variable when creating a `ManagedZone`. For this tutorial, we'll derive a host from this domain for these echo services.
+In this walkthrough, we'll deploy test echo services across multiple clusters. If you followed the [Getting Started Guide](https://docs.kuadrant.io/getting-started/), you would have already set up a `MGC_ZONE_ROOT_DOMAIN` environment variable. For this tutorial, we'll derive a host from this domain for these echo services.
 
 ### Create a gateway
 
