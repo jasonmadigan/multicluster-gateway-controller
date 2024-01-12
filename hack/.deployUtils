@@ -95,6 +95,60 @@ deployOCMSpoke() {
   done
 }
 
+deployApicurioStudio() {
+  clusterName=${1}
+
+  apicurioNS=apicurio
+  echo "Deploying Apicurio Studio in kind-${clusterName}"
+  # https://github.com/apicurio/apicurio-studio-operator
+
+  kubectl --context kind-${clusterName} apply -f - <<EOF
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: apicurio
+---
+EOF
+
+  kubectl --context kind-${clusterName} apply -f https://raw.githubusercontent.com/Apicurio/apicurio-studio-operator/main/deploy/crd/apicuriostudios.studio.apicur.io-v1.yml
+  kubectl --context kind-${clusterName} apply -f https://raw.githubusercontent.com/Apicurio/apicurio-studio-operator/main/deploy/service_account.yaml -n ${apicurioNS}
+  kubectl --context kind-${clusterName} apply -f https://raw.githubusercontent.com/Apicurio/apicurio-studio-operator/main/deploy/role.yaml -n ${apicurioNS}
+  kubectl --context kind-${clusterName} apply -f https://raw.githubusercontent.com/Apicurio/apicurio-studio-operator/main/deploy/role_binding.yaml -n ${apicurioNS}
+  
+  # Operator
+  kubectl --context kind-${clusterName} apply -f https://raw.githubusercontent.com/Apicurio/apicurio-studio-operator/main/deploy/operator.yaml -n ${apicurioNS}
+  kubectl --context kind-${clusterName} get pods -n ${apicurioNS}
+
+  kubectl --context kind-${clusterName} apply -f - <<EOF
+apiVersion: studio.apicur.io/v1alpha1
+kind: ApicurioStudio
+metadata:
+  name: apicurio-studio
+  namespace: apicurio
+spec:
+  name: apicurio-studio
+  url: apicurio.172.31.0.2.nip.io
+  keycloak:
+    install: true
+    url: keycloak.apicurio.172.31.0.2.nip.io
+EOF
+  until [ $(kubectl --context kind-${clusterName} get ingress -n $apicurioNS -o json | jq '.items | length') = 3 ]; do
+    echo "Apicurio Studio UI Ingress is not available yet, trying again in 1s"
+    sleep 1
+  done
+  
+  kubectl --context kind-${clusterName} wait pods -l app=apicurio-studio --for=condition=Ready --timeout=300s -n ${apicurioNS}
+  echo "yooo"
+  echo "Apicurio Studio: https://$(kubectl --context kind-${clusterName} get ingress apicurio-studio-ui -n ${apicurioNS} -o jsonpath='{.spec.host}')"
+  echo "Signup and login with your own account"
+
+  echo "Apicurio Studio Keycloak Admin details (should you need them): https://$(kubectl --context kind-${clusterName} get ingress apicurio-studio-auth -n ${apicurioNS} -o jsonpath='{.spec.host}')"
+  AS_USER=$(kubectl --context kind-${clusterName} get secret -n ${apicurioNS} apicurio-studio-auth-keycloak --template='{{ index .data "keycloak-user" | base64decode }}')
+  AS_PASS=$(kubectl --context kind-${clusterName} get secret -n ${apicurioNS} apicurio-studio-auth-keycloak --template='{{ index .data "keycloak-password" | base64decode }}')
+  echo "User: $AS_USER, Password: $AS_PASS"
+  echo ""
+}
+
 
 
 # local-setup-mgc specific functions

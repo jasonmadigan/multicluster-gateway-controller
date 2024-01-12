@@ -88,6 +88,9 @@ installAPIDashboards ${KIND_CLUSTER_CONTROL_PLANE}
 # Deploy Thanos components in the hub
 deployThanos ${KIND_CLUSTER_CONTROL_PLANE}
 
+# Deploy APICurio Studio
+deployApicurioStudio ${KIND_CLUSTER_CONTROL_PLANE}
+
 # Deploy to workload clusters if MGC_WORKLOAD_CLUSTERS_COUNT environment variable is set
 if [[ -n "${MGC_WORKLOAD_CLUSTERS_COUNT}" ]]; then
   for ((i = 1; i <= ${MGC_WORKLOAD_CLUSTERS_COUNT}; i++)); do
