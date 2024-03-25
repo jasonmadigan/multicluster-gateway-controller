@@ -3,6 +3,22 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BIN_DIR="${SCRIPT_DIR}/../bin/"
 
+containerRuntime() {
+  local container_runtime=""
+
+  if command -v docker &> /dev/null; then
+    container_runtime="docker"
+  elif command -v podman &> /dev/null; then
+    container_runtime="podman"
+  else
+    echo "Neither Docker nor Podman is installed. Exiting..."
+    exit 1
+  fi
+  echo "$container_runtime"
+}
+
+export CONTAINER_RUNTIME_BIN=$(containerRuntime)
+
 export KIND_BIN="${BIN_DIR}kind"
 export KUSTOMIZE_BIN="${BIN_DIR}kustomize"
 export HELM_BIN="${BIN_DIR}helm"
